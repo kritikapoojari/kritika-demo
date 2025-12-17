@@ -1,5 +1,5 @@
 import Fuse from 'fuse.js';
-import Stack, { Query, CONTENT_TYPES } from '../config/contentstack';
+import Stack, { CONTENT_TYPES } from '../config/contentstack';
 
 // Search configuration for Fuse.js
 const searchOptions = {
@@ -20,24 +20,27 @@ const searchOptions = {
  */
 export const searchDocumentation = async (query, filters = {}) => {
   try {
-    const queryBuilder = Query.documentation()
-      .query(query ? { $regex: query, $options: 'i' } : {})
-      .includeCount()
-      .toJSON();
+    const Query = Stack.ContentType(CONTENT_TYPES.DOCUMENTATION).Query();
+    Query.includeCount();
+
+    if (query) {
+      Query.where('title', Stack.Query().regex(query, 'i'));
+    }
 
     // Apply filters
     if (filters.category) {
-      queryBuilder.query.category = filters.category;
+      Query.where('category', filters.category);
     }
     if (filters.version) {
-      queryBuilder.query.version = filters.version;
+      Query.where('version', filters.version);
     }
 
-    const result = await Stack.ContentType(CONTENT_TYPES.DOCUMENTATION).Query(queryBuilder.query).find();
+    const result = await Query.toJSON().find();
+    const entries = Array.isArray(result) && result.length > 0 ? result[0] : [];
     
     // Use Fuse.js for client-side relevancy scoring
-    if (query && result.items.length > 0) {
-      const fuse = new Fuse(result.items, searchOptions);
+    if (query && entries.length > 0) {
+      const fuse = new Fuse(entries, searchOptions);
       const searchResults = fuse.search(query);
       return {
         items: searchResults.map(item => item.item),
@@ -45,7 +48,7 @@ export const searchDocumentation = async (query, filters = {}) => {
       };
     }
 
-    return result;
+    return { items: entries, count: entries.length };
   } catch (error) {
     console.error('Error searching documentation:', error);
     throw error;
@@ -57,22 +60,25 @@ export const searchDocumentation = async (query, filters = {}) => {
  */
 export const searchFAQs = async (query, filters = {}) => {
   try {
-    const queryBuilder = Query.faq()
-      .query(query ? { $regex: query, $options: 'i' } : {})
-      .includeCount()
-      .toJSON();
+    const Query = Stack.ContentType('faq').Query();
+    Query.includeCount();
+
+    if (query) {
+      Query.where('question', Stack.Query().regex(query, 'i'));
+    }
 
     if (filters.category) {
-      queryBuilder.query.category = filters.category;
+      Query.where('category', filters.category);
     }
     if (filters.tags) {
-      queryBuilder.query.tags = { $in: filters.tags };
+      Query.where('tags', Stack.Query().in(filters.tags));
     }
 
-    const result = await Stack.ContentType('faq').Query(queryBuilder.query).find();
+    const result = await Query.toJSON().find();
+    const entries = Array.isArray(result) && result.length > 0 ? result[0] : [];
     
-    if (query && result.items.length > 0) {
-      const fuse = new Fuse(result.items, {
+    if (query && entries.length > 0) {
+      const fuse = new Fuse(entries, {
         ...searchOptions,
         keys: [
           { name: 'question', weight: 0.8 },
@@ -87,7 +93,7 @@ export const searchFAQs = async (query, filters = {}) => {
       };
     }
 
-    return result;
+    return { items: entries, count: entries.length };
   } catch (error) {
     console.error('Error searching FAQs:', error);
     throw error;

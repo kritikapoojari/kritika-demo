@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import Stack, { Query } from '../../config/contentstack';
+import Stack from '../../config/contentstack';
 import { searchFAQs } from '../../services/searchService';
 import { trackContentView } from '../../services/analyticsService';
 import { format } from 'date-fns';
@@ -16,17 +16,17 @@ const FAQList = ({ searchQuery = '' }) => {
   const fetchFAQs = useCallback(async () => {
     try {
       setLoading(true);
-      const query = Query.faq()
-        .includeCount()
-        .includeReference(['category'])
-        .toJSON();
+      const Query = Stack.ContentType('faq').Query();
+      Query.includeCount();
+      Query.includeReference(['category']);
 
       if (selectedCategory) {
-        query.query.category = { $in_query: { uid: selectedCategory } };
+        Query.where('category', selectedCategory);
       }
 
-      const result = await Stack.ContentType('faq').Query(query.query).find();
-      setFaqs(result.items || []);
+      const result = await Query.toJSON().find();
+      const entries = Array.isArray(result) && result.length > 0 ? result[0] : [];
+      setFaqs(entries || []);
       setError(null);
     } catch (err) {
       console.error('Error fetching FAQs:', err);
@@ -52,8 +52,11 @@ const FAQList = ({ searchQuery = '' }) => {
 
   const fetchCategories = useCallback(async () => {
     try {
-      const result = await Query.category().includeCount().find();
-      setCategories(result.items || []);
+      const Query = Stack.ContentType('category').Query();
+      Query.includeCount();
+      const result = await Query.toJSON().find();
+      const entries = Array.isArray(result) && result.length > 0 ? result[0] : [];
+      setCategories(entries || []);
     } catch (err) {
       console.error('Error fetching categories:', err);
     }

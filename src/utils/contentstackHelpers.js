@@ -1,118 +1,161 @@
 /**
  * Contentstack Helper Utilities
  * Helper functions for working with Contentstack content
+ * Using direct API calls instead of SDK
  */
 
-import Stack from '../config/contentstack';
 import { CONTENT_TYPES } from '../config/contentstack';
 
 /**
- * Get all documentation entries
- * According to Contentstack JavaScript SDK documentation
- * @param {Object} options - Query options
- * @param {string} options.category - Filter by category UID
- * @param {string} options.version - Filter by version
- * @param {string} options.searchQuery - Search query string
- * @returns {Promise} Contentstack query result
+ * Get Contentstack API configuration
  */
-export const getAllDocumentation = async (options = {}) => {
-  try {
-    // Create query instance - Contentstack SDK v3 syntax
-    // Use configurable content type UID
-    const Query = Stack.ContentType(CONTENT_TYPES.DOCUMENTATION).Query();
-    
-    // Include references
-    Query.includeReference(['category', 'related_docs']);
-    
-    // Include count
-    Query.includeCount();
-    
-    // Apply filters - Contentstack query syntax
-    if (options.category) {
-      // For reference fields, query by the reference field UID
-      Query.where('category', options.category);
-    }
-
-    if (options.version) {
-      Query.where('version', options.version);
-    }
-
-    if (options.searchQuery) {
-      // Contentstack search - use regex for case-insensitive search
-      // Search in title field
-      Query.where('title', Stack.Query().regex(options.searchQuery, 'i'));
-    }
-
-    // Execute query - Contentstack returns result[0] as array or {items: [], count: number}
-    const result = await Query.find();
-    
-    // Handle both response formats
-    // Format 1: result[0] = array of entries (older SDK)
-    // Format 2: result.items = array, result.count = number (newer SDK)
-    if (Array.isArray(result) && result.length > 0) {
-      return {
-        items: result[0] || [],
-        count: result[0]?.length || 0
-      };
-    } else if (result && result.items) {
-      return result;
-    } else {
-      return {
-        items: [],
-        count: 0
-      };
-    }
-  } catch (error) {
-    console.error('Error fetching documentation:', error);
-    throw error;
+const getContentstackConfig = () => {
+  const region = process.env.REACT_APP_CONTENTSTACK_REGION;
+  let host = 'eu-api.contentstack.com';
+  
+  // Set region-specific API hos
+  
+  const apiKey = process.env.REACT_APP_CONTENTSTACK_API_KEY;
+  const deliveryToken = process.env.REACT_APP_CONTENTSTACK_DELIVERY_TOKEN;
+  const environment = process.env.REACT_APP_CONTENTSTACK_ENVIRONMENT || 'production';
+  
+  if (!apiKey || !deliveryToken) {
+    console.warn('⚠️ Contentstack credentials missing from .env file');
   }
+  
+  return {
+    host,
+    apiKey,
+    deliveryToken,
+    environment
+  };
 };
 
 /**
- * Get a single documentation entry by UID
- * According to Contentstack JavaScript SDK documentation
+ * Get all documentation entries using direct API calls
+ * @returns {Promise} Array of all entries
+ */
+export const getAllDocumentation = async () => {
+  const contentTypeUID = CONTENT_TYPES.DOCUMENTATION;
+  
+  if (!contentTypeUID) {
+    throw new Error('REACT_APP_CONTENTSTACK_DOCUMENTATION_UID is not set in .env file');
+  }
+  
+  const config = getContentstackConfig();
+  const allEntries = [];
+  let skip = 0;
+  const limit = 100; // Contentstack API limit per request
+  let hasMore = true;
+  let iteration = 0;
+  const maxIterations = 100; // Safety limit to prevent infinite loops
+
+  while (hasMore && iteration < maxIterations) {
+    iteration++;
+    
+    // Build API URL with query parameters (Contentstack API uses query params, not headers)
+    const url = new URL(`https://${config.host}/v3/content_types/${contentTypeUID}/entries`);
+    url.searchParams.append('environment', config.environment);
+    url.searchParams.append('skip', skip.toString());
+    url.searchParams.append('limit', limit.toString());
+    url.searchParams.append('api_key', config.apiKey);
+    url.searchParams.append('access_token', config.deliveryToken);
+    
+    console.log(`📡 Fetching from: ${url.toString().replace(/api_key=[^&]+/, 'api_key=***').replace(/access_token=[^&]+/, 'access_token=***')}`);
+    
+    try {
+      const response = await fetch(url.toString(), {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        const error = new Error(errorData.error_message || `HTTP ${response.status}: ${response.statusText}`);
+        error.error_code = errorData.error_code;
+        error.error_message = errorData.error_message;
+        error.errors = errorData.errors;
+        throw error;
+      }
+      
+      const data = await response.json();
+      const entries = data.entries || [];
+      
+      if (entries.length === 0) {
+        hasMore = false;
+      } else {
+        allEntries.push(...entries);
+        skip += limit;
+        
+        // If we got fewer entries than the limit, we've reached the end
+        if (entries.length < limit) {
+          hasMore = false;
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching entries from Contentstack API:', error);
+      throw error;
+    }
+  }
+
+  return allEntries;
+};
+
+/**
+ * Get a single documentation entry by UID using direct API call
  * @param {string} uid - Entry UID
  * @param {Object} options - Query options
  * @param {string} options.version - Filter by version
- * @returns {Promise} Contentstack entry
+ * @returns {Promise} Contentstack entry or null
  */
 export const getDocumentationByUid = async (uid, options = {}) => {
+  const contentTypeUID = CONTENT_TYPES.DOCUMENTATION;
+  
+  if (!contentTypeUID) {
+    throw new Error('REACT_APP_CONTENTSTACK_DOCUMENTATION_UID is not set in .env file');
+  }
+  
+  const config = getContentstackConfig();
+  
+  // Build API URL with query parameters
+  const url = new URL(`https://${config.host}/v3/content_types/${contentTypeUID}/entries/${uid}`);
+  url.searchParams.append('environment', config.environment);
+  url.searchParams.append('api_key', config.apiKey);
+  url.searchParams.append('access_token', config.deliveryToken);
+  
+  // Include references
+  url.searchParams.append('include[]', 'category');
+  url.searchParams.append('include[]', 'related_docs');
+  
+  // Apply version filter if provided
+  if (options.version) {
+    url.searchParams.append('version', options.version);
+  }
+  
   try {
-    // Create query instance - Contentstack SDK v3 syntax
-    // Use configurable content type UID
-    const Query = Stack.ContentType(CONTENT_TYPES.DOCUMENTATION).Query();
+    const response = await fetch(url.toString(), {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
     
-    // Filter by UID
-    Query.where('uid', uid);
-    
-    // Include references
-    Query.includeReference(['category', 'related_docs']);
-
-    // Apply version filter if provided
-    if (options.version) {
-      Query.where('version', options.version);
-    }
-
-    // Execute query
-    const result = await Query.find();
-    
-    // Handle both response formats
-    // Format 1: result[0] = array of entries (older SDK)
-    // Format 2: result.items = array, result.count = number (newer SDK)
-    let entries = [];
-    if (Array.isArray(result) && result.length > 0) {
-      entries = result[0] || [];
-    } else if (result && result.items) {
-      entries = result.items;
-    } else if (Array.isArray(result)) {
-      entries = result;
+    if (!response.ok) {
+      if (response.status === 404) {
+        return null;
+      }
+      const errorData = await response.json().catch(() => ({}));
+      const error = new Error(errorData.error_message || `HTTP ${response.status}: ${response.statusText}`);
+      error.error_code = errorData.error_code;
+      error.error_message = errorData.error_message;
+      error.errors = errorData.errors;
+      throw error;
     }
     
-    if (entries.length > 0) {
-      return entries[0];
-    }
-    
-    return null;
+    const data = await response.json();
+    return data.entry || null;
   } catch (error) {
     console.error('Error fetching documentation by UID:', error);
     throw error;
