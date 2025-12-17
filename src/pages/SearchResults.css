@@ -1,0 +1,152 @@
+.search-results-page {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.search-header {
+  margin-bottom: 2rem;
+}
+
+.search-header h1 {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  color: #2c3e50;
+}
+
+.search-bar-container {
+  margin-bottom: 2rem;
+}
+
+.search-info {
+  margin-bottom: 1.5rem;
+  color: #666;
+}
+
+.search-info strong {
+  color: #2c3e50;
+}
+
+.results-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.result-item {
+  background-color: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 1.5rem;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.result-item:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: #3498db;
+}
+
+.result-header {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.result-type {
+  background-color: #3498db;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.result-category {
+  background-color: #e8f4f8;
+  color: #3498db;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.result-title {
+  margin: 0 0 0.75rem 0;
+  font-size: 1.25rem;
+}
+
+.result-link {
+  color: #2c3e50;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s;
+}
+
+.result-link:hover,
+.result-link:focus {
+  color: #3498db;
+  text-decoration: underline;
+  outline: 2px solid #3498db;
+  outline-offset: 2px;
+}
+
+.result-description {
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 0.75rem;
+}
+
+.result-answer {
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 0.75rem;
+}
+
+.result-answer p {
+  margin-bottom: 0.5rem;
+}
+
+.result-version {
+  display: inline-block;
+  background-color: #f0f0f0;
+  color: #666;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
+
+.loading-container,
+.error-container,
+.no-results {
+  padding: 2rem;
+  text-align: center;
+}
+
+.error-container {
+  color: #e74c3c;
+}
+
+.no-results {
+  color: #666;
+}
+
+.no-results p {
+  margin-bottom: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .search-results-page {
+    padding: 1rem;
+  }
+
+  .result-item {
+    padding: 1rem;
+  }
+}
+

@@ -1,0 +1,206 @@
+{
+  "content_type": {
+    "created_at": "2025-12-17T06:42:56.072Z",
+    "updated_at": "2025-12-17T06:42:56.658Z",
+    "title": "FAQ",
+    "uid": "faq",
+    "_version": 1,
+    "inbuilt_class": false,
+    "schema": [
+      {
+        "display_name": "Title",
+        "uid": "title",
+        "data_type": "text",
+        "mandatory": true,
+        "unique": true,
+        "field_metadata": {
+          "_default": true,
+          "version": 3
+        },
+        "multiple": false,
+        "non_localizable": false
+      },
+      {
+        "display_name": "URL",
+        "uid": "url",
+        "data_type": "text",
+        "mandatory": false,
+        "field_metadata": {
+          "_default": true,
+          "version": 3
+        },
+        "multiple": false,
+        "unique": false,
+        "non_localizable": false
+      },
+      {
+        "display_name": "Question",
+        "uid": "question",
+        "data_type": "text",
+        "mandatory": true,
+        "unique": true,
+        "field_metadata": {
+          "description": "The frequently asked question",
+          "default_value": "",
+          "version": 3,
+          "validation": {
+            "min_length": 10,
+            "max_length": 200
+          }
+        },
+        "multiple": false,
+        "non_localizable": false
+      },
+      {
+        "display_name": "Answer",
+        "uid": "answer",
+        "data_type": "richtext",
+        "mandatory": true,
+        "field_metadata": {
+          "description": "The answer to the FAQ",
+          "version": 3,
+          "rich_text_type": "advanced",
+          "allow_rich_text_mode": true,
+          "rich_text_editor": "rte",
+          "rte": {
+            "modules": {
+              "paragraph": true,
+              "heading": {
+                "h1": true,
+                "h2": true,
+                "h3": true,
+                "h4": true,
+                "h5": true,
+                "h6": true
+              },
+              "list": {
+                "ol": true,
+                "ul": true
+              },
+              "link": true,
+              "image": true,
+              "code": true,
+              "blockquote": true,
+              "table": true
+            },
+            "plugins": []
+          }
+        },
+        "multiple": false,
+        "non_localizable": false
+      },
+      {
+        "display_name": "Category",
+        "uid": "category",
+        "data_type": "reference",
+        "mandatory": true,
+        "field_metadata": {
+          "ref_multiple": false,
+          "ref_multiple_content_types": false,
+          "ref_content_types": [
+            "category"
+          ],
+          "description": "The category this FAQ belongs to",
+          "version": 3
+        },
+        "multiple": false,
+        "non_localizable": false
+      },
+      {
+        "display_name": "Tags",
+        "uid": "tags",
+        "data_type": "tags",
+        "mandatory": false,
+        "field_metadata": {
+          "description": "Tags for categorizing and searching FAQs",
+          "version": 3
+        },
+        "multiple": true,
+        "non_localizable": false
+      },
+      {
+        "display_name": "Is Featured",
+        "uid": "is_featured",
+        "data_type": "boolean",
+        "mandatory": false,
+        "field_metadata": {
+          "description": "Mark this FAQ as featured/frequently asked",
+          "default_value": false,
+          "version": 3
+        },
+        "multiple": false,
+        "non_localizable": false
+      },
+      {
+        "display_name": "View Count",
+        "uid": "view_count",
+        "data_type": "number",
+        "mandatory": false,
+        "field_metadata": {
+          "description": "Number of times this FAQ has been viewed",
+          "default_value": 0,
+          "version": 3,
+          "validation": {
+            "min": 0
+          }
+        },
+        "multiple": false,
+        "non_localizable": false
+      },
+      {
+        "display_name": "Access Roles",
+        "uid": "access_roles",
+        "data_type": "json",
+        "mandatory": false,
+        "field_metadata": {
+          "description": "Array of roles that can access this FAQ. Default: [\"viewer\", \"editor\", \"admin\", \"guest\"]",
+          "default_value": "[\"viewer\", \"editor\", \"admin\", \"guest\"]",
+          "version": 3
+        },
+        "multiple": false,
+        "non_localizable": false
+      }
+    ],
+    "last_activity": {},
+    "maintain_revisions": true,
+    "description": "Content type for Frequently Asked Questions (FAQs). Includes question, answer, category, tags, and access control.",
+    "DEFAULT_ACL": [
+      {
+        "k": "others",
+        "v": {
+          "read": false,
+          "create": false
+        }
+      },
+      {
+        "k": "users.bltdc65c09e4346cf89",
+        "v": {
+          "read": true,
+          "sub_acl": {
+            "read": true
+          }
+        }
+      }
+    ],
+    "SYS_ACL": {
+      "roles": []
+    },
+    "options": {
+      "is_page": false,
+      "singleton": false,
+      "title": "question",
+      "sub_title": [],
+      "url_pattern": "/faqs/:question",
+      "url_prefix": "/",
+      "abilities": {
+        "get_one_object": true,
+        "get_all_objects": true,
+        "create_object": true,
+        "update_object": true,
+        "delete_object": true,
+        "delete_all_objects": true
+      }
+    }
+  }
+}
+

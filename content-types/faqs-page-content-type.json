@@ -1,0 +1,230 @@
+{
+  "content_type": {
+    "created_at": "2025-12-17T06:42:56.072Z",
+    "updated_at": "2025-12-17T06:42:56.658Z",
+    "title": "FAQs",
+    "uid": "faqs",
+    "_version": 2,
+    "inbuilt_class": false,
+    "schema": [
+      {
+        "display_name": "Title",
+        "uid": "title",
+        "data_type": "text",
+        "mandatory": true,
+        "unique": true,
+        "field_metadata": {
+          "_default": true,
+          "version": 3
+        },
+        "multiple": false,
+        "non_localizable": false
+      },
+      {
+        "display_name": "URL",
+        "uid": "url",
+        "data_type": "text",
+        "mandatory": false,
+        "field_metadata": {
+          "_default": true,
+          "version": 3
+        },
+        "multiple": false,
+        "unique": false,
+        "non_localizable": false
+      },
+      {
+        "data_type": "blocks",
+        "display_name": "Page Components",
+        "uid": "page_components",
+        "mandatory": false,
+        "field_metadata": {
+          "description": "Components to build the FAQ page layout",
+          "version": 3
+        },
+        "blocks": [
+          {
+            "title": "Hero Banner",
+            "uid": "hero_banner",
+            "schema": [
+              {
+                "data_type": "reference",
+                "display_name": "Hero Banner",
+                "uid": "hero_banner",
+                "mandatory": false,
+                "field_metadata": {
+                  "ref_multiple": false,
+                  "ref_multiple_content_types": true,
+                  "ref_content_types": [
+                    "hero_banner"
+                  ],
+                  "version": 3
+                },
+                "multiple": false,
+                "non_localizable": false,
+                "unique": false
+              }
+            ],
+            "reference_to": [
+              "hero_banner"
+            ]
+          },
+          {
+            "title": "Section with cards",
+            "uid": "section_with_cards",
+            "schema": [
+              {
+                "data_type": "reference",
+                "display_name": "Section with Cards",
+                "uid": "section_with_cards",
+                "mandatory": false,
+                "field_metadata": {
+                  "ref_multiple": true,
+                  "ref_multiple_content_types": true,
+                  "ref_content_types": [
+                    "section_with_cards"
+                  ],
+                  "version": 3
+                },
+                "multiple": true,
+                "non_localizable": false,
+                "unique": false
+              }
+            ],
+            "reference_to": [
+              "section_with_cards"
+            ]
+          },
+          {
+            "title": "FAQ List Section",
+            "uid": "faq_list_section",
+            "schema": [
+              {
+                "data_type": "text",
+                "display_name": "Section Title",
+                "uid": "section_title",
+                "mandatory": false,
+                "field_metadata": {
+                  "description": "Title for the FAQ list section",
+                  "version": 3
+                },
+                "multiple": false,
+                "non_localizable": false,
+                "unique": false
+              },
+              {
+                "data_type": "text",
+                "display_name": "Section Description",
+                "uid": "section_description",
+                "mandatory": false,
+                "field_metadata": {
+                  "description": "Description text for the FAQ section",
+                  "version": 3
+                },
+                "multiple": false,
+                "non_localizable": false,
+                "unique": false
+              },
+              {
+                "data_type": "reference",
+                "display_name": "Featured FAQs",
+                "uid": "featured_faqs",
+                "mandatory": false,
+                "field_metadata": {
+                  "ref_multiple": true,
+                  "ref_multiple_content_types": false,
+                  "ref_content_types": [
+                    "faq"
+                  ],
+                  "description": "Select specific FAQs to feature in this section",
+                  "version": 3
+                },
+                "multiple": true,
+                "non_localizable": false,
+                "unique": false
+              },
+              {
+                "data_type": "reference",
+                "display_name": "Category Filter",
+                "uid": "category_filter",
+                "mandatory": false,
+                "field_metadata": {
+                  "ref_multiple": false,
+                  "ref_multiple_content_types": false,
+                  "ref_content_types": [
+                    "category"
+                  ],
+                  "description": "Filter FAQs by category (optional)",
+                  "version": 3
+                },
+                "multiple": false,
+                "non_localizable": false,
+                "unique": false
+              }
+            ],
+            "reference_to": []
+          }
+        ],
+        "multiple": true,
+        "non_localizable": false
+      },
+      {
+        "data_type": "global_field",
+        "display_name": "SEO",
+        "uid": "seo",
+        "mandatory": false,
+        "field_metadata": {
+          "description": "SEO metadata for the page",
+          "ref_content_types": [
+            "seo"
+          ],
+          "version": 3
+        },
+        "multiple": false,
+        "non_localizable": false,
+        "unique": false
+      }
+    ],
+    "last_activity": {},
+    "maintain_revisions": true,
+    "description": "Lets you create a page exclusively for the frequently asked questions and their corresponding answers with appropriate links. Also, includes the hero banner at the top of the page.",
+    "DEFAULT_ACL": [
+      {
+        "k": "others",
+        "v": {
+          "read": false,
+          "create": false
+        }
+      },
+      {
+        "k": "users.bltdc65c09e4346cf89",
+        "v": {
+          "read": true,
+          "sub_acl": {
+            "read": true
+          }
+        }
+      }
+    ],
+    "SYS_ACL": {
+      "roles": []
+    },
+    "options": {
+      "is_page": true,
+      "singleton": false,
+      "title": "title",
+      "sub_title": [],
+      "url_pattern": "/:title",
+      "url_prefix": "/",
+      "abilities": {
+        "get_one_object": true,
+        "get_all_objects": true,
+        "create_object": true,
+        "update_object": true,
+        "delete_object": true,
+        "delete_all_objects": true
+      }
+    }
+  }
+}
+

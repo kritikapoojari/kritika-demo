@@ -1,0 +1,159 @@
+{
+  "content_type": {
+    "created_at": "2025-12-17T06:42:56.072Z",
+    "updated_at": "2025-12-17T06:42:56.658Z",
+    "title": "Hero Banner",
+    "uid": "hero_banner",
+    "_version": 1,
+    "inbuilt_class": false,
+    "schema": [
+      {
+        "display_name": "Title",
+        "uid": "title",
+        "data_type": "text",
+        "mandatory": true,
+        "unique": true,
+        "field_metadata": {
+          "_default": true,
+          "version": 3
+        },
+        "multiple": false,
+        "non_localizable": false
+      },
+      {
+        "display_name": "URL",
+        "uid": "url",
+        "data_type": "text",
+        "mandatory": false,
+        "field_metadata": {
+          "_default": true,
+          "version": 3
+        },
+        "multiple": false,
+        "unique": false,
+        "non_localizable": false
+      },
+      {
+        "display_name": "Heading",
+        "uid": "heading",
+        "data_type": "text",
+        "mandatory": true,
+        "field_metadata": {
+          "description": "Main heading text for the hero banner",
+          "version": 3
+        },
+        "multiple": false,
+        "non_localizable": false
+      },
+      {
+        "display_name": "Subheading",
+        "uid": "subheading",
+        "data_type": "text",
+        "mandatory": false,
+        "field_metadata": {
+          "description": "Subheading or description text",
+          "version": 3
+        },
+        "multiple": false,
+        "non_localizable": false
+      },
+      {
+        "display_name": "Background Image",
+        "uid": "background_image",
+        "data_type": "file",
+        "mandatory": false,
+        "field_metadata": {
+          "description": "Background image for the hero banner",
+          "version": 3,
+          "file_type": "image",
+          "allowed_file_types": [
+            "image/jpeg",
+            "image/png",
+            "image/webp",
+            "image/svg+xml"
+          ]
+        },
+        "multiple": false,
+        "non_localizable": false
+      },
+      {
+        "display_name": "Background Color",
+        "uid": "background_color",
+        "data_type": "text",
+        "mandatory": false,
+        "field_metadata": {
+          "description": "Background color hex code (e.g., #3498db)",
+          "default_value": "#667eea",
+          "version": 3
+        },
+        "multiple": false,
+        "non_localizable": false
+      },
+      {
+        "display_name": "CTA Button Text",
+        "uid": "cta_button_text",
+        "data_type": "text",
+        "mandatory": false,
+        "field_metadata": {
+          "description": "Call-to-action button text",
+          "version": 3
+        },
+        "multiple": false,
+        "non_localizable": false
+      },
+      {
+        "display_name": "CTA Button Link",
+        "uid": "cta_button_link",
+        "data_type": "link",
+        "mandatory": false,
+        "field_metadata": {
+          "description": "Call-to-action button link",
+          "version": 3
+        },
+        "multiple": false,
+        "non_localizable": false
+      }
+    ],
+    "last_activity": {},
+    "maintain_revisions": true,
+    "description": "Hero banner component for page headers",
+    "DEFAULT_ACL": [
+      {
+        "k": "others",
+        "v": {
+          "read": false,
+          "create": false
+        }
+      },
+      {
+        "k": "users.bltdc65c09e4346cf89",
+        "v": {
+          "read": true,
+          "sub_acl": {
+            "read": true
+          }
+        }
+      }
+    ],
+    "SYS_ACL": {
+      "roles": []
+    },
+    "options": {
+      "is_page": false,
+      "singleton": false,
+      "title": "title",
+      "sub_title": [],
+      "url_pattern": "",
+      "url_prefix": "",
+      "abilities": {
+        "get_one_object": true,
+        "get_all_objects": true,
+        "create_object": true,
+        "update_object": true,
+        "delete_object": true,
+        "delete_all_objects": true
+      }
+    }
+  }
+}
+
