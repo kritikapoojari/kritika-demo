@@ -27,7 +27,7 @@ function App() {
           </Routes>
         </main>
         <footer className="app-footer" role="contentinfo">
-          <p>&copy; 2024 Knowledge Portal. Built with Contentstack.</p>
+          <p>&copy; 2025 Knowledge Portal. Built with Contentstack.</p>
         </footer>
     </div>
     </Router>
