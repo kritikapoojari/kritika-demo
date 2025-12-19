@@ -35,8 +35,15 @@ const FAQList = ({ searchQuery = '' }) => {
         // Format the helpful error message for display
         if (err.message && err.message.includes('To fix this:')) {
           errorMessage = err.message;
+          // If a suggested UID was found, highlight it
+          if (err.suggested_uid) {
+            errorMessage = errorMessage.replace(
+              err.suggested_uid,
+              `**${err.suggested_uid}**`
+            );
+          }
         } else {
-          errorMessage = `Content Type '${err.content_type || 'faq'}' was not found.\n\n` +
+          errorMessage = `Content Type '${err.content_type || 'faqs'}' was not found.\n\n` +
             `To fix this:\n` +
             `1. Go to Contentstack → Content Types\n` +
             `2. Find your FAQ content type\n` +

@@ -229,7 +229,7 @@ export const getEntryUrl = (entry) => {
  * @returns {Promise} Array of all FAQ entries
  */
 export const getAllFAQs = async (options = {}) => {
-  const contentTypeUID = CONTENT_TYPES.FAQ || 'faq';
+  const contentTypeUID = CONTENT_TYPES.FAQ || 'faqs';
   
   if (!contentTypeUID) {
     throw new Error('FAQ content type UID is not configured');

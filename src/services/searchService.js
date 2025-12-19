@@ -106,7 +106,7 @@ export const searchFAQs = async (query, filters = {}) => {
 /**
  * Universal search across all content types
  */
-export const universalSearch = async (query, contentTypes = ['documentation', 'faq']) => {
+export const universalSearch = async (query, contentTypes = ['documentation', 'faqs']) => {
   try {
     const results = await Promise.all(
       contentTypes.map(async (type) => {
@@ -114,9 +114,9 @@ export const universalSearch = async (query, contentTypes = ['documentation', 'f
           if (type === 'documentation' || type === CONTENT_TYPES.DOCUMENTATION) {
             const result = await searchDocumentation(query);
             return { ...result, contentType: 'documentation' };
-          } else if (type === 'faq' || type === CONTENT_TYPES.FAQ) {
-            const result = await searchFAQs(query);
-            return { ...result, contentType: 'faq' };
+        } else if (type === 'faqs' || type === 'faq' || type === CONTENT_TYPES.FAQ) {
+          const result = await searchFAQs(query);
+          return { ...result, contentType: 'faqs' };
           }
           return { items: [], count: 0, contentType: type };
         } catch (err) {

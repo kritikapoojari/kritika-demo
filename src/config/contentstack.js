@@ -29,7 +29,7 @@ export default Stack;
 // Content Type UIDs - Only from .env file
 export const CONTENT_TYPES = {
   DOCUMENTATION: process.env.REACT_APP_CONTENTSTACK_DOCUMENTATION_UID,
-  FAQ: process.env.REACT_APP_CONTENTSTACK_FAQ_UID,
+  FAQ: process.env.REACT_APP_CONTENTSTACK_FAQ_UID || 'faqs',
   CATEGORY: process.env.REACT_APP_CONTENTSTACK_CATEGORY_UID,
   FEEDBACK: process.env.REACT_APP_CONTENTSTACK_FEEDBACK_UID || 'feedback',
 };

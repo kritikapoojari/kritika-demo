@@ -44,7 +44,7 @@ const SearchResults = () => {
   const getContentTypePath = (contentType, uid) => {
     return contentType === 'documentation' 
       ? `/documentation/${uid}` 
-      : `/faqs#${uid}`;
+      : (contentType === 'faqs' || contentType === 'faq') ? `/faqs#${uid}` : `/faqs#${uid}`;
   };
 
   return (
