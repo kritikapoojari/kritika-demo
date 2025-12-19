@@ -1,10 +1,13 @@
 import Fuse from 'fuse.js';
-import Stack, { CONTENT_TYPES } from '../config/contentstack';
+import { getAllDocumentation, getAllFAQs } from '../utils/contentstackHelpers';
+import { CONTENT_TYPES } from '../config/contentstack';
 
 // Search configuration for Fuse.js
 const searchOptions = {
   keys: [
     { name: 'title', weight: 0.7 },
+    { name: 'single_line', weight: 0.6 },
+    { name: 'multi_line', weight: 0.5 },
     { name: 'content', weight: 0.5 },
     { name: 'description', weight: 0.6 },
     { name: 'tags', weight: 0.4 },
@@ -20,27 +23,29 @@ const searchOptions = {
  */
 export const searchDocumentation = async (query, filters = {}) => {
   try {
-    const Query = Stack.ContentType(CONTENT_TYPES.DOCUMENTATION).Query();
-    Query.includeCount();
-
-    if (query) {
-      Query.where('title', Stack.Query().regex(query, 'i'));
-    }
-
-    // Apply filters
-    if (filters.category) {
-      Query.where('category', filters.category);
-    }
-    if (filters.version) {
-      Query.where('version', filters.version);
-    }
-
-    const result = await Query.toJSON().find();
-    const entries = Array.isArray(result) && result.length > 0 ? result[0] : [];
+    // Get all documentation entries
+    const allEntries = await getAllDocumentation();
     
-    // Use Fuse.js for client-side relevancy scoring
-    if (query && entries.length > 0) {
-      const fuse = new Fuse(entries, searchOptions);
+    // Apply filters first
+    let filteredEntries = allEntries;
+    if (filters.category && allEntries.length > 0) {
+      filteredEntries = allEntries.filter(entry => {
+        if (entry.category) {
+          const categoryUid = typeof entry.category === 'string' 
+            ? entry.category 
+            : entry.category.uid;
+          return categoryUid === filters.category;
+        }
+        return false;
+      });
+    }
+    if (filters.version && filteredEntries.length > 0) {
+      filteredEntries = filteredEntries.filter(entry => entry.version === filters.version);
+    }
+    
+    // Use Fuse.js for client-side search
+    if (query && filteredEntries.length > 0) {
+      const fuse = new Fuse(filteredEntries, searchOptions);
       const searchResults = fuse.search(query);
       return {
         items: searchResults.map(item => item.item),
@@ -48,7 +53,7 @@ export const searchDocumentation = async (query, filters = {}) => {
       };
     }
 
-    return { items: entries, count: entries.length };
+    return { items: filteredEntries, count: filteredEntries.length };
   } catch (error) {
     console.error('Error searching documentation:', error);
     throw error;
@@ -60,28 +65,26 @@ export const searchDocumentation = async (query, filters = {}) => {
  */
 export const searchFAQs = async (query, filters = {}) => {
   try {
-    const Query = Stack.ContentType('faq').Query();
-    Query.includeCount();
-
-    if (query) {
-      Query.where('question', Stack.Query().regex(query, 'i'));
-    }
-
-    if (filters.category) {
-      Query.where('category', filters.category);
-    }
-    if (filters.tags) {
-      Query.where('tags', Stack.Query().in(filters.tags));
-    }
-
-    const result = await Query.toJSON().find();
-    const entries = Array.isArray(result) && result.length > 0 ? result[0] : [];
+    // Get all FAQ entries
+    const options = filters.category ? { category: filters.category } : {};
+    const allEntries = await getAllFAQs(options);
     
-    if (query && entries.length > 0) {
-      const fuse = new Fuse(entries, {
+    // Apply additional filters
+    let filteredEntries = allEntries;
+    if (filters.tags && filteredEntries.length > 0) {
+      filteredEntries = filteredEntries.filter(entry => 
+        entry.tags && entry.tags.some(tag => filters.tags.includes(tag))
+      );
+    }
+    
+    // Use Fuse.js for client-side search
+    if (query && filteredEntries.length > 0) {
+      const fuse = new Fuse(filteredEntries, {
         ...searchOptions,
         keys: [
+          { name: 'title', weight: 0.8 },
           { name: 'question', weight: 0.8 },
+          { name: 'single_line', weight: 0.6 },
           { name: 'answer', weight: 0.6 },
           { name: 'tags', weight: 0.4 },
         ],
@@ -93,7 +96,7 @@ export const searchFAQs = async (query, filters = {}) => {
       };
     }
 
-    return { items: entries, count: entries.length };
+    return { items: filteredEntries, count: filteredEntries.length };
   } catch (error) {
     console.error('Error searching FAQs:', error);
     throw error;
@@ -107,22 +110,37 @@ export const universalSearch = async (query, contentTypes = ['documentation', 'f
   try {
     const results = await Promise.all(
       contentTypes.map(async (type) => {
-        if (type === 'documentation') {
-          return searchDocumentation(query);
-        } else if (type === 'faq') {
-          return searchFAQs(query);
+        try {
+          if (type === 'documentation' || type === CONTENT_TYPES.DOCUMENTATION) {
+            const result = await searchDocumentation(query);
+            return { ...result, contentType: 'documentation' };
+          } else if (type === 'faq' || type === CONTENT_TYPES.FAQ) {
+            const result = await searchFAQs(query);
+            return { ...result, contentType: 'faq' };
+          }
+          return { items: [], count: 0, contentType: type };
+        } catch (err) {
+          // If one content type fails, continue with others
+          console.warn(`Search failed for ${type}:`, err);
+          return { items: [], count: 0, contentType: type };
         }
-        return { items: [], count: 0 };
       })
     );
 
-    // Combine and sort by relevancy
-    const allResults = results.flatMap((result, index) =>
+    // Combine results with content type information
+    const allResults = results.flatMap((result) =>
       result.items.map(item => ({
         ...item,
-        contentType: contentTypes[index],
+        contentType: result.contentType,
       }))
     );
+
+    // Sort by relevancy if we have search scores (from Fuse.js)
+    if (query && allResults.length > 0) {
+      // Fuse.js adds a _score property, but we'll sort by a simple relevance
+      // You could enhance this by preserving Fuse.js scores
+      return allResults;
+    }
 
     return allResults;
   } catch (error) {

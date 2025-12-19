@@ -67,8 +67,8 @@ const Home = () => {
               Help us improve by providing feedback on documentation and FAQs.
               Your input matters!
             </p>
-            <Link to="/documentation" className="feature-link">
-              Share Feedback →
+            <Link to="/feedback" className="feature-link">
+              View Feedback →
             </Link>
           </div>
         </div>

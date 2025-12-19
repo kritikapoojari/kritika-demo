@@ -112,9 +112,17 @@ const SearchResults = () => {
                       to={getContentTypePath(result.contentType, result.uid)}
                       className="result-link"
                     >
-                      {result.title || result.question}
+                      {result.title || result.question || result.single_line || 'Untitled'}
                     </Link>
                   </h2>
+                  {result.single_line && (
+                    <p className="result-description" style={{ fontWeight: 'bold', marginBottom: '5px' }}>
+                      {result.single_line}
+                    </p>
+                  )}
+                  {result.multi_line && (
+                    <p className="result-description">{result.multi_line}</p>
+                  )}
                   {result.description && (
                     <p className="result-description">{result.description}</p>
                   )}

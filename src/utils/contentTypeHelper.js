@@ -129,3 +129,109 @@ export const getContentTypeFromEntry = async (entryUid) => {
   }
 };
 
+/**
+ * Try to find FAQ content type UID by testing common alternatives
+ * @returns {Promise} Object with found UID or list of tried UIDs
+ */
+export const findFAQContentTypeUID = async () => {
+  const commonFAQUIDs = [
+    'faq',
+    'faqs',
+    'faq_entry',
+    'faq_entries',
+    'question',
+    'questions',
+    'frequently_asked_question',
+    'frequently_asked_questions',
+  ];
+  
+  console.log('🔍 Trying to find FAQ content type UID...');
+  console.log('Testing common UIDs:', commonFAQUIDs);
+  
+  for (const uid of commonFAQUIDs) {
+    try {
+      const Query = Stack.ContentType(uid).Query();
+      Query.limit(1);
+      const result = await Query.toJSON().find();
+      
+      // Check if we got a valid response (not an error)
+      if (result && (Array.isArray(result) ? result.length > 0 : true)) {
+        console.log(`✅ Found FAQ content type: "${uid}"`);
+        return { found: true, uid: uid };
+      }
+    } catch (err) {
+      // Content type doesn't exist or error occurred, continue
+      if (err.error_code !== 118) {
+        // If it's not a "not found" error, log it
+        console.warn(`⚠️ Error testing "${uid}":`, err.error_message || err.message);
+      }
+    }
+  }
+  
+  console.log('❌ Could not find FAQ content type with common UIDs');
+  console.log('\n📋 To find your FAQ content type UID:');
+  console.log('1. Go to Contentstack → Content Types');
+  console.log('2. Find your FAQ content type');
+  console.log('3. Check the UID in the URL or settings');
+  console.log('4. Add to .env file: REACT_APP_CONTENTSTACK_FAQ_UID=your_actual_uid');
+  
+  return { 
+    found: false, 
+    tried: commonFAQUIDs,
+    message: 'Please check your FAQ content type UID in Contentstack' 
+  };
+};
+
+/**
+ * Try to find Category content type UID by testing common alternatives
+ * @returns {Promise} Object with found UID or list of tried UIDs
+ */
+export const findCategoryContentTypeUID = async () => {
+  const commonCategoryUIDs = [
+    'category',
+    'categories',
+    'category_entry',
+    'category_entries',
+    'tag',
+    'tags',
+    'taxonomy',
+    'taxonomies',
+  ];
+  
+  console.log('🔍 Trying to find Category content type UID...');
+  console.log('Testing common UIDs:', commonCategoryUIDs);
+  
+  for (const uid of commonCategoryUIDs) {
+    try {
+      const Query = Stack.ContentType(uid).Query();
+      Query.limit(1);
+      const result = await Query.toJSON().find();
+      
+      // Check if we got a valid response (not an error)
+      if (result && (Array.isArray(result) ? result.length > 0 : true)) {
+        console.log(`✅ Found Category content type: "${uid}"`);
+        return { found: true, uid: uid };
+      }
+    } catch (err) {
+      // Content type doesn't exist or error occurred, continue
+      if (err.error_code !== 118) {
+        // If it's not a "not found" error, log it
+        console.warn(`⚠️ Error testing "${uid}":`, err.error_message || err.message);
+      }
+    }
+  }
+  
+  console.log('❌ Could not find Category content type with common UIDs');
+  console.log('\n📋 To find your Category content type UID:');
+  console.log('1. Go to Contentstack → Content Types');
+  console.log('2. Find your Category content type');
+  console.log('3. Check the UID in the URL or settings');
+  console.log('4. Add to .env file: REACT_APP_CONTENTSTACK_CATEGORY_UID=your_actual_uid');
+  
+  return { 
+    found: false, 
+    tried: commonCategoryUIDs,
+    message: 'Please check your Category content type UID in Contentstack' 
+  };
+};
+

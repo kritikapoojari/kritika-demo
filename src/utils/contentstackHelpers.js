@@ -223,6 +223,358 @@ export const getEntryUrl = (entry) => {
 };
 
 /**
+ * Get all FAQ entries using direct API calls
+ * @param {Object} options - Query options
+ * @param {string} options.category - Filter by category UID
+ * @returns {Promise} Array of all FAQ entries
+ */
+export const getAllFAQs = async (options = {}) => {
+  const contentTypeUID = CONTENT_TYPES.FAQ || 'faq';
+  
+  if (!contentTypeUID) {
+    throw new Error('FAQ content type UID is not configured');
+  }
+  
+  const config = getContentstackConfig();
+  const allEntries = [];
+  let skip = 0;
+  const limit = 100;
+  let hasMore = true;
+  let iteration = 0;
+  const maxIterations = 100;
+  let includeCategory = CONTENT_TYPES.CATEGORY ? true : false; // Track if we should include categories
+
+  while (hasMore && iteration < maxIterations) {
+    iteration++;
+    
+    const url = new URL(`https://${config.host}/v3/content_types/${contentTypeUID}/entries`);
+    url.searchParams.append('environment', config.environment);
+    url.searchParams.append('skip', skip.toString());
+    url.searchParams.append('limit', limit.toString());
+    url.searchParams.append('api_key', config.apiKey);
+    url.searchParams.append('access_token', config.deliveryToken);
+    
+    // Only include category references if category content type is configured and we haven't had errors
+    if (includeCategory) {
+      url.searchParams.append('include[]', 'category');
+    }
+    
+    try {
+      const response = await fetch(url.toString(), {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        
+        // If error is about invalid category reference, try again without including category
+        if (errorData.error_code === 141 && errorData.errors?.category && includeCategory) {
+          console.info('ℹ️ Category reference is invalid. Fetching FAQs without category references.');
+          // Disable category includes for future requests
+          includeCategory = false;
+          // Remove category include and retry
+          url.searchParams.delete('include[]');
+          const retryResponse = await fetch(url.toString(), {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          if (!retryResponse.ok) {
+            const retryErrorData = await retryResponse.json().catch(() => ({}));
+            const error = new Error(retryErrorData.error_message || `HTTP ${retryResponse.status}: ${retryResponse.statusText}`);
+            error.error_code = retryErrorData.error_code;
+            error.error_message = retryErrorData.error_message;
+            error.errors = retryErrorData.errors;
+            error.content_type = contentTypeUID;
+            throw error;
+          }
+          
+          // Use the retry response
+          const retryData = await retryResponse.json();
+          const entries = retryData.entries || [];
+          
+          if (entries.length === 0) {
+            hasMore = false;
+          } else {
+            allEntries.push(...entries);
+            skip += limit;
+            
+            if (entries.length < limit) {
+              hasMore = false;
+            }
+          }
+          continue; // Continue to next iteration
+        }
+        
+        const error = new Error(errorData.error_message || `HTTP ${response.status}: ${response.statusText}`);
+        error.error_code = errorData.error_code;
+        error.error_message = errorData.error_message;
+        error.errors = errorData.errors;
+        error.content_type = contentTypeUID;
+        throw error;
+      }
+      
+      const data = await response.json();
+      const entries = data.entries || [];
+      
+      if (entries.length === 0) {
+        hasMore = false;
+      } else {
+        allEntries.push(...entries);
+        skip += limit;
+        
+        if (entries.length < limit) {
+          hasMore = false;
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching FAQs from Contentstack API:', error);
+      
+      // If content type not found, provide helpful error message
+      if (error.error_code === 118) {
+        const helpfulError = new Error(
+          `Content Type '${contentTypeUID}' was not found.\n\n` +
+          `To fix this:\n` +
+          `1. Go to Contentstack → Content Types\n` +
+          `2. Find your FAQ content type\n` +
+          `3. Check the UID in the URL or settings\n` +
+          `4. Add to .env file: REACT_APP_CONTENTSTACK_FAQ_UID=your_actual_uid\n` +
+          `5. Or try common UIDs: faqs, faq_entry, question, questions\n\n` +
+          `Current UID being used: '${contentTypeUID}'`
+        );
+        helpfulError.error_code = error.error_code;
+        helpfulError.error_message = error.error_message;
+        helpfulError.errors = error.errors;
+        helpfulError.content_type = contentTypeUID;
+        throw helpfulError;
+      }
+      
+      throw error;
+    }
+  }
+
+  // Filter by category if provided and category content type exists
+  if (options.category && allEntries.length > 0 && CONTENT_TYPES.CATEGORY) {
+    return allEntries.filter(entry => {
+      // Handle both direct UID reference and full reference object
+      if (entry.category) {
+        const categoryUid = typeof entry.category === 'string' 
+          ? entry.category 
+          : entry.category.uid || entry.category._content_type_uid;
+        return categoryUid === options.category;
+      }
+      return false;
+    });
+  }
+
+  return allEntries;
+};
+
+/**
+ * Get all category entries using direct API calls
+ * Returns empty array if category content type doesn't exist (categories are optional)
+ * @returns {Promise} Array of all category entries, or empty array if not found
+ */
+export const getAllCategories = async () => {
+  const contentTypeUID = CONTENT_TYPES.CATEGORY || 'category';
+  
+  // If no category UID is configured, return empty array (categories are optional)
+  if (!CONTENT_TYPES.CATEGORY) {
+    console.info('ℹ️ Category content type UID not configured. Categories are optional.');
+    return [];
+  }
+  
+  const config = getContentstackConfig();
+  const allEntries = [];
+  let skip = 0;
+  const limit = 100;
+  let hasMore = true;
+  let iteration = 0;
+  const maxIterations = 100;
+
+  while (hasMore && iteration < maxIterations) {
+    iteration++;
+    
+    const url = new URL(`https://${config.host}/v3/content_types/${contentTypeUID}/entries`);
+    url.searchParams.append('environment', config.environment);
+    url.searchParams.append('skip', skip.toString());
+    url.searchParams.append('limit', limit.toString());
+    url.searchParams.append('api_key', config.apiKey);
+    url.searchParams.append('access_token', config.deliveryToken);
+    
+    try {
+      const response = await fetch(url.toString(), {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        
+        // If content type not found, provide helpful error message
+        if (errorData.error_code === 118) {
+          const helpfulError = new Error(
+            `Content Type '${contentTypeUID}' was not found.\n\n` +
+            `To fix this:\n` +
+            `1. Go to Contentstack → Content Types\n` +
+            `2. Find your Category content type\n` +
+            `3. Check the UID in the URL or settings\n` +
+            `4. Add to .env file: REACT_APP_CONTENTSTACK_CATEGORY_UID=your_actual_uid\n` +
+            `5. Or try common UIDs: categories, category_entry, tag, tags\n\n` +
+            `Current UID being used: '${contentTypeUID}'`
+          );
+          helpfulError.error_code = errorData.error_code;
+          helpfulError.error_message = errorData.error_message;
+          helpfulError.errors = errorData.errors;
+          helpfulError.content_type = contentTypeUID;
+          throw helpfulError;
+        }
+        
+        const error = new Error(errorData.error_message || `HTTP ${response.status}: ${response.statusText}`);
+        error.error_code = errorData.error_code;
+        error.error_message = errorData.error_message;
+        error.errors = errorData.errors;
+        error.content_type = contentTypeUID;
+        throw error;
+      }
+      
+      const data = await response.json();
+      const entries = data.entries || [];
+      
+      if (entries.length === 0) {
+        hasMore = false;
+      } else {
+        allEntries.push(...entries);
+        skip += limit;
+        
+        if (entries.length < limit) {
+          hasMore = false;
+        }
+      }
+    } catch (error) {
+      // If content type not found (error 118), return empty array (categories are optional)
+      if (error.error_code === 118) {
+        console.info('ℹ️ Category content type not found. Categories are optional - continuing without category filtering.');
+        return [];
+      }
+      
+      console.error('Error fetching categories from Contentstack API:', error);
+      // For other errors, still return empty array to prevent breaking the app
+      return [];
+    }
+  }
+
+  return allEntries;
+};
+
+/**
+ * Get all feedback entries using direct API calls
+ * @param {Object} options - Query options
+ * @param {string} options.contentUid - Filter by content UID
+ * @param {string} options.contentType - Filter by content type
+ * @returns {Promise} Array of all feedback entries
+ */
+export const getAllFeedback = async (options = {}) => {
+  const contentTypeUID = CONTENT_TYPES.FEEDBACK || 'feedback';
+  
+  if (!contentTypeUID) {
+    throw new Error('Feedback content type UID is not configured');
+  }
+  
+  const config = getContentstackConfig();
+  const allEntries = [];
+  let skip = 0;
+  const limit = 100;
+  let hasMore = true;
+  let iteration = 0;
+  const maxIterations = 100;
+
+  while (hasMore && iteration < maxIterations) {
+    iteration++;
+    
+    const url = new URL(`https://${config.host}/v3/content_types/${contentTypeUID}/entries`);
+    url.searchParams.append('environment', config.environment);
+    url.searchParams.append('skip', skip.toString());
+    url.searchParams.append('limit', limit.toString());
+    url.searchParams.append('api_key', config.apiKey);
+    url.searchParams.append('access_token', config.deliveryToken);
+    
+    try {
+      const response = await fetch(url.toString(), {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        
+        // If content type not found, provide helpful error message
+        if (errorData.error_code === 118) {
+          const helpfulError = new Error(
+            `Content Type '${contentTypeUID}' was not found.\n\n` +
+            `To fix this:\n` +
+            `1. Go to Contentstack → Content Types\n` +
+            `2. Find your Feedback content type\n` +
+            `3. Check the UID in the URL or settings\n` +
+            `4. Add to .env file: REACT_APP_CONTENTSTACK_FEEDBACK_UID=your_actual_uid\n\n` +
+            `Current UID being used: '${contentTypeUID}'`
+          );
+          helpfulError.error_code = errorData.error_code;
+          helpfulError.error_message = errorData.error_message;
+          helpfulError.errors = errorData.errors;
+          helpfulError.content_type = contentTypeUID;
+          throw helpfulError;
+        }
+        
+        const error = new Error(errorData.error_message || `HTTP ${response.status}: ${response.statusText}`);
+        error.error_code = errorData.error_code;
+        error.error_message = errorData.error_message;
+        error.errors = errorData.errors;
+        error.content_type = contentTypeUID;
+        throw error;
+      }
+      
+      const data = await response.json();
+      const entries = data.entries || [];
+      
+      if (entries.length === 0) {
+        hasMore = false;
+      } else {
+        allEntries.push(...entries);
+        skip += limit;
+        
+        if (entries.length < limit) {
+          hasMore = false;
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching feedback from Contentstack API:', error);
+      throw error;
+    }
+  }
+
+  // Filter by contentUid or contentType if provided
+  if (options.contentUid && allEntries.length > 0) {
+    return allEntries.filter(entry => entry.content_uid === options.contentUid);
+  }
+  
+  if (options.contentType && allEntries.length > 0) {
+    return allEntries.filter(entry => entry.content_type === options.contentType);
+  }
+
+  return allEntries;
+};
+
+/**
  * Debug: Log Contentstack entry structure
  * @param {Object} entry - Contentstack entry
  * @param {string} label - Label for logging

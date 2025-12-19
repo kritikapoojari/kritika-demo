@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { getFeedbackAnalytics } from '../../services/feedbackService';
+import { getFeedbackAnalytics, getDataConsumptionAnalytics } from '../../services/feedbackService';
 import { getUserRole, hasPermission } from '../../config/roles';
 import './AnalyticsDashboard.css';
 
 const AnalyticsDashboard = () => {
   const [analytics, setAnalytics] = useState(null);
+  const [dataConsumption, setDataConsumption] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [dateRange, setDateRange] = useState({
@@ -16,11 +17,15 @@ const AnalyticsDashboard = () => {
   const fetchAnalytics = useCallback(async () => {
     try {
       setLoading(true);
-      const result = await getFeedbackAnalytics({
-        startDate: dateRange.startDate,
-        endDate: dateRange.endDate,
-      });
-      setAnalytics(result);
+      const [feedbackResult, consumptionResult] = await Promise.all([
+        getFeedbackAnalytics({
+          startDate: dateRange.startDate,
+          endDate: dateRange.endDate,
+        }),
+        getDataConsumptionAnalytics(),
+      ]);
+      setAnalytics(feedbackResult);
+      setDataConsumption(consumptionResult);
       setError(null);
     } catch (err) {
       console.error('Error fetching analytics:', err);
@@ -154,6 +159,40 @@ const AnalyticsDashboard = () => {
               ))}
             </div>
           </div>
+
+          {dataConsumption && (
+            <div className="analytics-card">
+              <h2>Data Consumption</h2>
+              <div className="stat">
+                <span className="stat-label">Total Entries:</span>
+                <span className="stat-value">{dataConsumption.totalEntries}</span>
+              </div>
+              <div className="stat">
+                <span className="stat-label">Total Data Size:</span>
+                <span className="stat-value">{dataConsumption.totalSizeFormatted}</span>
+              </div>
+              <div className="stat">
+                <span className="stat-label">Total API Calls:</span>
+                <span className="stat-value">{dataConsumption.apiCalls.total}</span>
+              </div>
+              
+              <h3 style={{ marginTop: '20px', marginBottom: '10px', fontSize: '1rem' }}>By Content Type</h3>
+              <div className="content-type-stats">
+                {Object.entries(dataConsumption.byContentType).map(([type, data]) => (
+                  <div key={type} className="content-type-stat" style={{ marginBottom: '10px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+                      <span className="type-name" style={{ textTransform: 'capitalize' }}>{type}</span>
+                    </div>
+                    <div style={{ fontSize: '0.875rem', color: '#666' }}>
+                      <div>Entries: {data.count}</div>
+                      <div>Size: {data.sizeFormatted}</div>
+                      <div>API Calls: {dataConsumption.apiCalls[type]}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

@@ -107,16 +107,6 @@ const DocumentationList = () => {
                   </a>
                 </div>
               )}
-              
-              <div style={{ fontSize: '12px', color: '#999', marginTop: '10px' }}>
-                <div>UID: {entry.uid}</div>
-                {entry.created_at && (
-                  <div>Created: {new Date(entry.created_at).toLocaleString()}</div>
-                )}
-                {entry.updated_at && (
-                  <div>Updated: {new Date(entry.updated_at).toLocaleString()}</div>
-                )}
-              </div>
             </div>
           ))}
         </div>

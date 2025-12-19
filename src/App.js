@@ -7,6 +7,7 @@ import DocumentationViewer from './components/Documentation/DocumentationViewer'
 import FAQList from './components/FAQ/FAQList';
 import SearchResults from './pages/SearchResults';
 import AnalyticsDashboard from './components/Analytics/AnalyticsDashboard';
+import FeedbackList from './components/Feedback/FeedbackList';
 import './App.css';
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
             <Route path="/faqs" element={<FAQList />} />
             <Route path="/search" element={<SearchResults />} />
             <Route path="/analytics" element={<AnalyticsDashboard />} />
+            <Route path="/feedback" element={<FeedbackList />} />
           </Routes>
         </main>
         <footer className="app-footer" role="contentinfo">
