@@ -9,7 +9,7 @@
  * - Content migration testing
  */
 
-import Stack, { Query, CONTENT_TYPES } from '../config/contentstack';
+import Stack, { CONTENT_TYPES } from '../config/contentstack';
 import { hasPermission, ROLES } from '../config/roles';
 
 /**

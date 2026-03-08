@@ -56,7 +56,7 @@ This document describes the content types that need to be created in Contentstac
 
 ## 2. FAQ Content Type
 
-**UID:** `faq`
+**UID:** `faqs`
 
 ### Fields:
 
@@ -86,7 +86,7 @@ This document describes the content types that need to be created in Contentstac
 - **view_count** (Number)
   - Required: No
   - Default: 0
-  - Description: Track how many times FAQ is viewed
+  - Description: Track how many times FAQs is viewed
 
 - **access_roles** (JSON)
   - Required: No
@@ -144,7 +144,7 @@ This document describes the content types that need to be created in Contentstac
 
 - **content_type** (Single Line Textbox)
   - Required: Yes
-  - Validation: Must be "documentation" or "faq"
+  - Validation: Must be "documentation" or "faqs"
 
 - **rating** (Number)
   - Required: Yes
