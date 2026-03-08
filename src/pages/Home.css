@@ -1,109 +1,261 @@
 .home-page {
-  min-height: calc(100vh - 200px);
+  min-height: calc(100vh - 60px);
 }
 
+/* ── Hero ── */
 .hero-section {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 60%, #312e81 100%);
   color: white;
-  padding: 4rem 2rem;
+  padding: 5rem 1.5rem 4rem;
   text-align: center;
+}
+
+.hero-inner {
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+.hero-badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #a5b4fc;
+  background: rgba(99, 102, 241, 0.15);
+  border: 1px solid rgba(99, 102, 241, 0.35);
+  border-radius: 20px;
+  padding: 4px 14px;
+  margin-bottom: 1.5rem;
 }
 
 .hero-title {
   font-size: 3rem;
-  font-weight: 700;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
   margin-bottom: 1rem;
+  color: #f8fafc;
 }
 
 .hero-subtitle {
-  font-size: 1.25rem;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: #94a3b8;
   margin-bottom: 2rem;
-  opacity: 0.9;
 }
 
 .hero-search {
-  max-width: 600px;
-  margin: 0 auto;
+  margin-bottom: 1.75rem;
 }
 
+.hero-links {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.hero-cta {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.65rem 1.5rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.15s;
+}
+
+.hero-cta--primary {
+  background: #6366f1;
+  color: #fff;
+}
+
+.hero-cta--primary:hover {
+  background: #4f46e5;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+}
+
+.hero-cta--ghost {
+  background: rgba(255, 255, 255, 0.08);
+  color: #cbd5e1;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.hero-cta--ghost:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: #f1f5f9;
+}
+
+/* ── Features ── */
 .features-section {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 4rem auto;
-  padding: 0 2rem;
+  padding: 0 1.5rem 3rem;
+  text-align: center;
 }
 
 .section-title {
-  font-size: 2rem;
-  text-align: center;
+  font-size: 1.9rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.01em;
+}
+
+.section-subtitle {
+  font-size: 1rem;
+  color: #64748b;
   margin-bottom: 3rem;
-  color: #2c3e50;
 }
 
 .features-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 2rem;
+  /*
+    Exactly as many columns as there are cards.
+    --card-count is set inline by Home.js so it always matches
+    the number of cards actually rendered for the current role.
+    Each column is at least 200px and shares space equally.
+  */
+  grid-template-columns: repeat(var(--card-count, 5), minmax(0, 1fr));
+  gap: 1.25rem;
+  text-align: left;
 }
 
 .feature-card {
-  background-color: white;
-  border-radius: 8px;
-  padding: 2rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s, box-shadow 0.2s;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 1.4rem;
   display: flex;
   flex-direction: column;
+  gap: 0.6rem;
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--accent, #6366f1);
+  opacity: 0;
+  transition: opacity 0.22s;
 }
 
 .feature-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  transform: translateY(-5px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
+  border-color: var(--accent, #6366f1);
+}
+
+.feature-card:hover::before {
+  opacity: 1;
+}
+
+/* Role badge shown on editor/admin */
+.feature-role-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  align-self: flex-start;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-radius: 20px;
+  padding: 3px 9px;
+  margin-bottom: 0.2rem;
+  border: 1px solid currentColor;
+  opacity: 0.85;
+}
+
+.feature-icon-wrap {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s;
+}
+
+.feature-card:hover .feature-icon-wrap {
+  transform: scale(1.08);
 }
 
 .feature-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-}
-
-.feature-card h3 {
   font-size: 1.5rem;
-  margin-bottom: 1rem;
-  color: #2c3e50;
 }
 
-.feature-card p {
-  color: #666;
-  line-height: 1.6;
-  margin-bottom: 1.5rem;
+.feature-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.feature-desc {
+  font-size: 0.875rem;
+  color: #64748b;
+  line-height: 1.65;
+  margin: 0;
   flex: 1;
 }
 
-.feature-link {
-  color: #3498db;
+/* CTA button — visually a solid button, NOT a text link */
+.feature-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.5rem;
+  padding: 0.55rem 1.1rem;
+  border-radius: 7px;
+  background: var(--accent, #6366f1);
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 600;
   text-decoration: none;
-  font-weight: 500;
-  transition: color 0.2s;
+  align-self: flex-start;
+  transition: filter 0.15s, transform 0.15s, box-shadow 0.15s;
 }
 
-.feature-link:hover,
-.feature-link:focus {
-  color: #2980b9;
-  text-decoration: underline;
-  outline: 2px solid #3498db;
-  outline-offset: 2px;
+.feature-btn:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.feature-btn:focus-visible {
+  outline: 2px solid var(--accent, #6366f1);
+  outline-offset: 3px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 1100px) {
+  .features-grid {
+    grid-template-columns: repeat(min(var(--card-count, 5), 3), minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 768px) {
-  .hero-title {
-    font-size: 2rem;
-  }
+  .hero-title    { font-size: 2rem; }
+  .hero-subtitle { font-size: 0.95rem; }
+  .hero-section  { padding: 3.5rem 1.25rem 3rem; }
 
-  .hero-subtitle {
-    font-size: 1rem;
+  .features-grid {
+    grid-template-columns: repeat(min(var(--card-count, 5), 2), minmax(0, 1fr));
   }
+}
 
+@media (max-width: 480px) {
   .features-grid {
     grid-template-columns: 1fr;
   }
 }
-

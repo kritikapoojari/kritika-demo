@@ -7,6 +7,7 @@ import DocumentationViewer from './components/Documentation/DocumentationViewer'
 import FAQList from './components/FAQ/FAQList';
 import SearchResults from './pages/SearchResults';
 import AnalyticsDashboard from './components/Analytics/AnalyticsDashboard';
+import FeedbackPage from './pages/FeedbackPage';
 import './App.css';
 
 function App() {
@@ -20,12 +21,13 @@ function App() {
             <Route path="/documentation" element={<DocumentationList />} />
             <Route path="/documentation/:uid" element={<DocumentationViewer />} />
             <Route path="/faqs" element={<FAQList />} />
+            <Route path="/feedback" element={<FeedbackPage />} />
             <Route path="/search" element={<SearchResults />} />
             <Route path="/analytics" element={<AnalyticsDashboard />} />
           </Routes>
         </main>
         <footer className="app-footer" role="contentinfo">
-          <p>&copy; 2024 Knowledge Portal. Built with Contentstack.</p>
+          <p>&copy; 2026 Knowledge Portal. Built with Contentstack.</p>
         </footer>
     </div>
     </Router>

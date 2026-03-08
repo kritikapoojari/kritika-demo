@@ -22,14 +22,7 @@ export const listContentTypes = async () => {
     
     // Try common content type UIDs
     const commonUIDs = [
-      'documentation',
-      'documentations',
-      'doc',
-      'docs',
-      'knowledge_base',
-      'kb',
-      'article',
-      'articles',
+      'documentation'
     ];
     
     console.log('\n🔍 Trying common content type UIDs...');
@@ -94,14 +87,7 @@ export const getContentTypeFromEntry = async (entryUid) => {
   try {
     // Try different content types to find which one contains this entry
     const contentTypes = [
-      'documentation',
-      'documentations',
-      'doc',
-      'docs',
-      'knowledge_base',
-      'kb',
-      'article',
-      'articles',
+      'documentation'
     ];
     
     for (const contentType of contentTypes) {

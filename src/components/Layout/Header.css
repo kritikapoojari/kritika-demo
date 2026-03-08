@@ -1,96 +1,169 @@
+/* ── Base ── */
 .header {
-  background-color: #2c3e50;
+  background: #0f172a;
   color: white;
-  padding: 1rem 0;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 0;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06);
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
 .header-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 2rem;
+  padding: 0 1.5rem;
+  height: 60px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
+  justify-content: space-between;
 }
 
+/* ── Logo ── */
 .header-logo {
   text-decoration: none;
   color: white;
-}
-
-.header-logo h1 {
-  margin: 0;
-  font-size: 1.5rem;
-  font-weight: 600;
-}
-
-.header-nav {
-  flex: 1;
   display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-shrink: 0;
+}
+
+.logo-mark {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  display: flex;
+  align-items: center;
   justify-content: center;
-}
-
-.nav-list {
-  list-style: none;
-  display: flex;
-  gap: 2rem;
-  margin: 0;
-  padding: 0;
-}
-
-.nav-link {
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
   color: white;
-  text-decoration: none;
-  font-weight: 500;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  transition: background-color 0.2s;
+  flex-shrink: 0;
 }
 
-.nav-link:hover,
-.nav-link:focus {
-  background-color: rgba(255, 255, 255, 0.1);
-  outline: 2px solid white;
-  outline-offset: 2px;
+.logo-text {
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
 }
 
+/* ── Role dropdown wrapper ── */
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 1rem;
 }
 
-.role-selector {
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  background-color: rgba(255, 255, 255, 0.1);
-  color: white;
+.role-dropdown-wrap {
+  position: relative;
+}
+
+/* ── Trigger button ── */
+.role-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px 6px 10px;
+  border-radius: 20px;
+  border: none;
   cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: filter 0.15s, transform 0.12s;
+  line-height: 1;
 }
 
-.role-selector:focus {
-  outline: 2px solid white;
-  outline-offset: 2px;
+.role-trigger:hover  { filter: brightness(1.12); }
+.role-trigger:active { transform: scale(0.97); }
+
+.role-trigger--guest  { background: rgba(255,255,255,0.12); color: #e2e8f0; border: 1.5px solid rgba(255,255,255,0.22); }
+.role-trigger--viewer { background: linear-gradient(135deg, #059669, #047857); color: #fff; box-shadow: 0 2px 8px rgba(5,150,105,0.4); }
+.role-trigger--editor { background: linear-gradient(135deg, #0891b2, #0e7490); color: #fff; box-shadow: 0 2px 8px rgba(8,145,178,0.4); }
+.role-trigger--admin  { background: linear-gradient(135deg, #4f46e5, #7c3aed); color: #fff; box-shadow: 0 2px 8px rgba(79,70,229,0.4); }
+
+.role-trigger-icon  { font-size: 0.9rem; line-height: 1; }
+.role-trigger-label { font-size: 0.78rem; font-weight: 700; }
+.role-trigger-caret { font-size: 0.6rem; opacity: 0.7; margin-left: 2px; transition: transform 0.18s; }
+
+.role-dropdown-wrap--open .role-trigger-caret {
+  transform: rotate(180deg);
 }
 
-@media (max-width: 768px) {
-  .header-container {
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .nav-list {
-    flex-direction: column;
-    gap: 0.5rem;
-    width: 100%;
-  }
-
-  .nav-link {
-    display: block;
-    text-align: center;
-  }
+/* ── Dropdown menu ── */
+.role-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 230px;
+  background: #1e293b;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  padding: 6px;
+  list-style: none;
+  margin: 0;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.45);
+  z-index: 200;
+  animation: menuFadeIn 0.14s ease;
 }
 
+@keyframes menuFadeIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.role-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.role-menu-item:hover { background: rgba(255,255,255,0.07); }
+
+.role-menu-item--active { background: rgba(255,255,255,0.05); }
+
+/* left accent strip per role */
+.role-menu-item--guest  { border-left: 3px solid rgba(226,232,240,0.35); }
+.role-menu-item--viewer { border-left: 3px solid #059669; }
+.role-menu-item--editor { border-left: 3px solid #0891b2; }
+.role-menu-item--admin  { border-left: 3px solid #6366f1; }
+
+.role-menu-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.role-menu-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1;
+}
+
+.role-menu-name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #f1f5f9;
+}
+
+.role-menu-desc {
+  font-size: 0.7rem;
+  color: #64748b;
+  font-weight: 400;
+}
+
+.role-menu-check {
+  font-size: 0.75rem;
+  color: #6366f1;
+  font-weight: 800;
+  flex-shrink: 0;
+}
